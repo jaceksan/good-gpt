@@ -1,6 +1,5 @@
 import requests
 import json
-import streamlit as st
 import os
 
 # Slack API URL for posting messages
@@ -39,20 +38,5 @@ def receive_slack_message():
     response = requests.get(messages_url, headers=headers)
     if response.status_code != 200:
         raise ValueError(f"Request to Slack returned an error {response.status_code}, the response is:\n{response.text}")
+    # TODO: figure out what to do with messages 
     messages = response.json()["messages"]
-    for message in messages:
-        username = message["user"]
-        text = message["text"]
-        st.write(f"{username}: {text}")
-
-# Streamlit UI for sending and receiving messages
-st.title("Slack Integration")
-with st.form(key="send_message"):
-    message = st.text_input("Type your message")
-    submitted = st.form_submit_button("Send")
-if submitted:
-    send_slack_message(message)
-    st.success("Message sent")
-    st.experimental_rerun()
-
-receive_slack_message()
