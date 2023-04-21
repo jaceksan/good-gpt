@@ -1,0 +1,4 @@
+Write an executable Python script with list of numbers as argument.
+The script contains a function summing up these numbers.
+The function is documented inside including parameters.
+The script provides help.
