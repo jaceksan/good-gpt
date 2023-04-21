@@ -1,15 +1,17 @@
 import os
 from github import Github
 from github import InputGitTreeElement
+from dotenv import load_dotenv
 
+load_dotenv()
 
 def create_branch(branch_name):
     # Authentication
-    g = Github("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")
+    g = Github(os.environ['GITHUB_PERSONAL_ACCESS_TOKEN'])
 
     # Set user, repo, branch and file path
-    user = 'jaceksan'
-    repo = 'good-gpt'
+    user = os.environ['GITHUB_REPO_OWNER']
+    repo = os.environ['GITHUB_REPO_NAME']
     base_branch = 'main'
 
     # Get repository
@@ -81,6 +83,6 @@ def read_pull_request_comments(pr_number):
     
     # Loop through comments and append to list
     for comment in comments:
-        comments_list.append(comment.body)
+        comments_list.append(comment)
     
     return comments_list
