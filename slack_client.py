@@ -1,12 +1,12 @@
 import requests
 import json
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Slack API URL for posting messages
 SLACK_POST_MESSAGE_URL = "https://slack.com/api/chat.postMessage"
-
-# Slack API token
-SLACK_TOKEN = os.environ.get("SLACK_TOKEN")
 
 # Slack channel to post messages to
 SLACK_CHANNEL = os.environ.get("SLACK_CHANNEL")
@@ -22,7 +22,7 @@ def send_slack_message(message):
     }
     headers = {
         "content-type": "application/json",
-        "Authorization": "Bearer " + SLACK_TOKEN
+        "Authorization": f"Bearer {os.environ.get('SLACK_TOKEN')}"
     }
     response = requests.post(SLACK_POST_MESSAGE_URL, data=json.dumps(payload), headers=headers)
     if response.status_code != 200:
@@ -34,7 +34,7 @@ def receive_slack_message():
     Receive messages from a Slack channel
     """
     messages_url = f"https://slack.com/api/conversations.history?channel={SLACK_CHANNEL}"
-    headers = {"Authorization": "Bearer " + SLACK_TOKEN}
+    headers = {"Authorization": f"Bearer {os.environ.get('SLACK_TOKEN')}"}
     response = requests.get(messages_url, headers=headers)
     if response.status_code != 200:
         raise ValueError(f"Request to Slack returned an error {response.status_code}, the response is:\n{response.text}")
