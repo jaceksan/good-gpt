@@ -1,15 +1,16 @@
 import requests
 import json
 import streamlit as st
+import os
 
 # Slack API URL for posting messages
 SLACK_POST_MESSAGE_URL = "https://slack.com/api/chat.postMessage"
 
 # Slack API token
-SLACK_TOKEN = "<your_slack_bot_token>"
+SLACK_TOKEN = os.environ.get("SLACK_TOKEN")
 
 # Slack channel to post messages to
-SLACK_CHANNEL = "<your_slack_channel>"
+SLACK_CHANNEL = os.environ.get("SLACK_CHANNEL")
 
 # Function to send message to Slack channel
 def send_slack_message(message):
