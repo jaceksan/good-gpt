@@ -1,13 +1,5 @@
 import streamlit as st
-import openai
-import os
 from gpt import call_openapi, create_openapi_request, extract_code_block, supported_models
-from dotenv import load_dotenv
-
-load_dotenv()
-
-# Set OpenAI API key
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
 st.set_page_config(
     layout="wide", page_icon="favicon.ico", page_title="Streamlit-GPT demo"
