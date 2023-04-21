@@ -1,5 +1,6 @@
 import streamlit as st
 from gpt import call_openapi, create_openapi_request, extract_code_block, supported_models
+from slack_client import send_slack_message
 
 st.set_page_config(
     layout="wide", page_icon="favicon.ico", page_title="Streamlit-GPT demo"
@@ -20,10 +21,17 @@ text_input = st.text_area(
     3. Display the result from the ChatGPT"""
 )
 
+if 'final_code' not in st.session_state:
+    st.session_state.final_code = ""
+
 # Button to send text to OpenAI
-if st.button("Send"):
+if st.button("Generate code"):
     print(f"{text_input=}")
     markdown_response = call_openapi(create_openapi_request(text_input), model)
     final_code = extract_code_block(markdown_response)
+    st.session_state.final_code = markdown_response
 
-    st.markdown(markdown_response, unsafe_allow_html=True)
+st.markdown(st.session_state.final_code, unsafe_allow_html=True)
+
+if st.session_state.final_code and st.button("Send result to Slack"):
+    send_slack_message(st.session_state.final_code)

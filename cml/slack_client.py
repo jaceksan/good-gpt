@@ -12,6 +12,7 @@ SLACK_POST_MESSAGE_URL = "https://slack.com/api/chat.postMessage"
 SLACK_CHANNEL = os.environ.get("SLACK_CHANNEL")
 
 # Function to send message to Slack channel
+
 def send_slack_message(message):
     """
     Send a message to a Slack channel
@@ -29,6 +30,7 @@ def send_slack_message(message):
         raise ValueError(f"Request to Slack returned an error {response.status_code}, the response is:\n{response.text}")
 
 # Function to receive messages from Slack channel
+
 def receive_slack_message():
     """
     Receive messages from a Slack channel
