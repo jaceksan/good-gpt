@@ -34,4 +34,6 @@ if st.button("Generate code"):
 st.markdown(st.session_state.final_code, unsafe_allow_html=True)
 
 if st.session_state.final_code and st.button("Send result to Slack"):
-    send_slack_message(st.session_state.final_code)
+    send_slack_message(
+        f"Input: {text_input}\n{st.session_state.final_code}"
+    )

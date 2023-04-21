@@ -23,7 +23,9 @@ def call_openapi(conversation: list[dict], model_engine: str = "gpt-3.5-turbo") 
 
 def create_openapi_request(content: str) -> list[dict]:
     return [
-        {"role": "system", "content": "You are a Python developer. Return only pure code, no explanation text."},
+        {
+            "role": "system",
+            "content": "You are a Python developer. Return only pure code, no explanation text. Return as markdown code block."},
         {
             "role": "user",
             "content": content
