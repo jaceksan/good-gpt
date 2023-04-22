@@ -39,10 +39,13 @@ class GithubClient:
         self.base_branch_default = 'main'
         # Get repository
         self.repo = self.g.get_user(self.user).get_repo(self.repo_name)
+
+        self.project_name = None
         self.branch_name = None
 
-    def set_branch(self, project_name):
-        self.branch_name = f"{GPT_USER}/{project_name}"
+    def set_branch(self, project_name: str) -> None:
+        self.project_name = project_name
+        self.branch_name = f"{GPT_USER}/{self.project_name}"
 
     def create_branch(self):
         # Retrieve base branch
@@ -125,13 +128,13 @@ class GithubClient:
     def list_gpt_pull_requests(self) -> list[PullRequest]:
         return [p for p in self.list_pull_requests() if p.login == GPT_USER]
 
-    def list_existing_apps(self) -> list:
+    def list_existing_apps(self) -> list[str]:
         """
-        :return: List of ContentFile.
+        :return: List of string (names of dir).
         """
         try:
             contents = self.repo.get_contents(APPS_FOLDER)
-            return [c for c in contents if c.type == "dir"]
+            return [c.name for c in contents if c.type == "dir"]
         except Exception:  # noqa
             return []
 
@@ -146,3 +149,28 @@ class GithubClient:
             body=f"{project_name} kickoff:\nSpecification:\n{text_input}",
             base_branch='main'
         )
+
+    def project_states(self) -> tuple[bool, bool]:
+        """
+        1. bool states if it's in apps
+        2. opened pull request
+        :return:
+        """
+        existing_app = False
+        opened_pr = False
+
+        # existing app
+        existing_projects = self.list_existing_apps()
+        for project in existing_projects:
+            if project == self.project_name:
+                existing_app = True
+                break
+
+        # opened pull request
+        gpt_opened_pull_requests = self.list_gpt_pull_requests()
+        for pr in gpt_opened_pull_requests:
+            if pr.branch_name == self.branch_name:
+                opened_pr = True
+                break
+
+        return existing_app, opened_pr
