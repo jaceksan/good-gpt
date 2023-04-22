@@ -31,7 +31,7 @@ def handle_project_name(github_client):
 
     existing_projects = [project_for_branch(b) for b in github_client.list_gpt_branches()]
     project_name = st.sidebar.text_input("Enter project name:")
-    project_branch_name = re.sub('[^a-zA-Z0-9_]+', '_', project_name)
+    project_branch_name = re.sub('[^a-zA-Z0-9_]+', '_', project_name) if isinstance(project_name, str) else project_name
     if project_name and project_name not in existing_projects:
         if st.sidebar.button("Create project"):
             github_client.set_branch(project_branch_name)
@@ -44,7 +44,7 @@ def handle_project_name(github_client):
         options=existing_projects,
         index=existing_projects.index(st.session_state.project_name) if st.session_state.project_name else 0
     )
-    project_branch_name = re.sub('[^a-zA-Z0-9_]+', '_', st.session_state.project_name)
+    project_branch_name = re.sub('[^a-zA-Z0-9_]+', '_', st.session_state.project_name) if isinstance(st.session_state.project_name, str) else project_name
     github_client.set_branch(project_branch_name)
 
 
