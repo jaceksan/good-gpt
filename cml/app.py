@@ -1,7 +1,8 @@
 import streamlit as st
 from gpt import call_openapi, create_openapi_request, extract_code_block, supported_models
 from slack_client import send_slack_message
-import os
+from github_client import create_branch, create_pull_request, update_file_in_branch, create_file_in_branch
+import os 
 
 # define password
 PASSWORD = os.environ.get("PASSWORD")
@@ -26,8 +27,10 @@ match check_password(password), password:
 
         st.title("Chat with AI")
 
-        supported_models = supported_models()
-        model = st.selectbox(label="Models", options=supported_models, index=supported_models.index("gpt-3.5-turbo"))
+    supported_models = supported_models()
+    model = st.selectbox(label="Models", options=supported_models, index=supported_models.index("gpt-3.5-turbo"))
+
+    team_name = st.text_input("Enter team name:", value="Team 1")
 
         # Text input box
         text_input = st.text_area(
@@ -54,6 +57,11 @@ match check_password(password), password:
             send_slack_message(
                 f"Input: {text_input}\n{st.session_state.final_code}"
             )
+    if st.session_state.final_code and st.button("Create Pull Request"):
+        create_branch(team_name)
+        create_file_in_branch(file_name=f"{team_name}/app.py",file_content=st.session_state.final_code,commit_message="{team_name}-kickoff", branch_name=team_name)
+        create_pull_request(f"{team_name} kickoff", f"{team_name} kickoff:\nSpecification:\n{text_input}", team_name, 'main')
+    
     case False, "":
         pass
     case False, _:
