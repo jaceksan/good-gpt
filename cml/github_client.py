@@ -1,6 +1,5 @@
 import os
 from dataclasses import dataclass
-
 from github import Github
 from dotenv import load_dotenv
 import streamlit as st
@@ -18,13 +17,15 @@ class PullRequest:
     state: str
     branch_name: str
     login: str
+    body: str
+    comments: list = None
 
     @classmethod
     def from_pull(cls, pull):
         """
         :param pull: PullRequest
         """
-        return cls(pull.title, pull.number, pull.state, pull.head.ref, pull.user.login)
+        return cls(pull.title, pull.number, pull.state, pull.head.ref, pull.user.login, pull.body, pull.get_comments())
 
 
 class GithubClient:
@@ -63,12 +64,9 @@ class GithubClient:
         pulls = self.repo.get_pulls(state='open')
         return [PullRequest.from_pull(p) for p in pulls if not p.head.ref.startswith(f"{GPT_USER}/")]
     
-    def list_gpt_pr_with_unresolved_comment(self):
-        pulls = self.repo.get_pulls(state='open')
-        return [PullRequest.from_pull(p) for p in pulls if p.head.ref.startswith(f"{GPT_USER}/") and self.get_unresolved_comments(p)]
-
-    def get_unresolved_comments(pr):
-        return [c for c in pr.get_review_comments() if c.state == 'CHANGE_REQUESTED']
+    def list_gpt_unresolved_pr(self):
+        pulls = self.repo.get_pulls(state='request_changes')
+        return [PullRequest.from_pull(p) for p in pulls if p.head.ref.startswith(f"{GPT_USER}/")]
 
     def create_pull_request(self, title: str, body: str, base_branch: str = 'main'):
         # Create a new pull request

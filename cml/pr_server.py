@@ -1,10 +1,11 @@
+from asyncio import sleep
 from github_client import GithubClient, GPT_USER
 from gpt import create_openapi_request, call_openapi, extract_code_block, create_openapi_redo_request
 
 def branch_to_file_path(branch_name: str):
     return "apps/" + branch_name.removeprefix(f"{GPT_USER}/") + "/app.py"
 
-def resolve_comment(pr, comment):
+def resolve_comment(pr):
     
     gitclient = GithubClient()
 
@@ -15,29 +16,30 @@ def resolve_comment(pr, comment):
             create_openapi_redo_request(
                 content=pr.body,
                 code_context= gitclient.get_file_content(
-                    pr.head.ref,
-                    branch_to_file_path(pr.head.ref)
+                    pr.branch_name,
+                    branch_to_file_path(pr.branch_name)
                 ),
-                pr_comment=comment.body
+                pr_comment=pr.comments[0].body,
             ),
-            model_engine="gpt-3.5-turbo"
+            model_engine="gpt-4-0314"
         )
     )
 
+    gitclient.set_branch(pr.branch_name.removeprefix(f"{GPT_USER}/"))
+
     gitclient.update_file_in_branch(
-        file_path=branch_to_file_path(pr.head.ref),
+        file_path=branch_to_file_path(pr.branch_name),
         updated_content=updated_content,
-        commit_message="Resolve comment"+comment.body
+        commit_message="Resolving PR comment"
     )
    
 
 def check_comments():
     gitclient = GithubClient()
-    unresolved_pr = gitclient.list_gpt_pr_with_unresolved_comment()
+    unresolved_pr = gitclient.list_gpt_unresolved_pr()
 
     for pr in unresolved_pr:
-        comment = gitclient.get_unresolved_comments(pr) # For now there is only one comment, but in the future there could be multiple comments
-        resolve_comment(pr, comment) # in future, let's resolve all comments together
+        resolve_comment(pr) # in future, let's resolve all comments together
 
 
 def check_pull_requests():
@@ -45,5 +47,6 @@ def check_pull_requests():
 
 
 if __name__ == "__main__":
-    check_comments()
-    check_pull_requests()
+    while True:
+        check_comments()
+        sleep(60)
