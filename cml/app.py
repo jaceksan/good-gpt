@@ -57,7 +57,7 @@ def app():
         st.session_state.markdown_code = call_openapi(create_openapi_request(text_input), model)
         st.session_state.final_code = extract_code_block(st.session_state.markdown_code)
 
-    st.markdown(st.session_state.final_code, unsafe_allow_html=True)
+    st.markdown(st.session_state.markdown_code, unsafe_allow_html=True)
 
     if st.session_state.final_code and st.button("Send result to Slack"):
         send_slack_message(
