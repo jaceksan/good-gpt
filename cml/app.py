@@ -67,7 +67,7 @@ def wip_project():
         st.write(f"Project {st.session_state.project_name} is in the progress there is opened [PR](https://github.com/jaceksan/good-gpt/pulls) on GitHub.")
     else:
         # there are no projects
-        st.write("There are no projects. Create one!")
+        st.write("There are no projects. Create one.")
 
 
 def new_project(github_client, model, example):
