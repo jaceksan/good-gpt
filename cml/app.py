@@ -8,7 +8,7 @@ import yaml
 
 # define password
 PASSWORD = os.environ.get("PASSWORD")
-EXAMPLES_DIR = "examples"
+EXAMPLES_DIR = pathlib.Path(__name__).parent / "examples"
 
 
 # create function to check if password is correct
