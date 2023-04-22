@@ -1,7 +1,7 @@
 import streamlit as st
 from gpt import call_openapi, create_openapi_request, extract_code_block, supported_models
 from slack_client import send_slack_message
-from github_client import create_branch, create_pull_request, update_file_in_branch, create_file_in_branch
+from github_client import GithubClient, GPT_USER
 import os 
 import re
 
@@ -14,20 +14,9 @@ def check_password(password):
     return password == PASSWORD
 
 
-def handle_pull_request(team_name_branch_name, team_name, text_input):
-    create_branch(team_name_branch_name)
-    create_file_in_branch(
-        file_name=f"apps/{team_name}/app.py",
-        file_content=st.session_state.final_code,
-        commit_message=f"{team_name}-kickoff",
-        branch_name=team_name_branch_name
-    )
-    create_pull_request(
-        title=f"{team_name} kickoff",
-        body=f"{team_name} kickoff:\nSpecification:\n{text_input}",
-        head_branch=team_name_branch_name,
-        base_branch='main'
-    )
+def project_for_branch(branch_name: str):
+    return branch_name.removeprefix(f"{GPT_USER}/")
+
 
 # reading from file
 def read_file(filename):
@@ -35,14 +24,38 @@ def read_file(filename):
         file_contents = f.read()
     return file_contents
 
+
+def handle_project_name(github_client):
+    if "project_name" not in st.session_state:
+        st.session_state.project_name = None
+
+    existing_projects = [project_for_branch(b) for b in github_client.list_gpt_branches()]
+    project_name = st.sidebar.text_input("Enter project name:")
+    project_branch_name = re.sub('[^a-zA-Z0-9_]+', '_', project_name)
+    if project_name and project_name not in existing_projects:
+        if st.sidebar.button("Create project"):
+            github_client.set_branch(project_branch_name)
+            github_client.create_branch()
+            existing_projects.append(project_branch_name)
+            st.session_state.project_name = project_branch_name
+
+    st.session_state.project_name = st.sidebar.selectbox(
+        label="Projects",
+        options=existing_projects,
+        index=existing_projects.index(st.session_state.project_name) if st.session_state.project_name else 0
+    )
+    project_branch_name = re.sub('[^a-zA-Z0-9_]+', '_', st.session_state.project_name)
+    github_client.set_branch(project_branch_name)
+
+
 def app():
     st.title("Design Streamlit apps with ChatGPT")
 
     models = supported_models()
     model = st.sidebar.selectbox(label="OpenAI models", options=models, index=models.index("gpt-3.5-turbo"))
+    github_client = GithubClient()
 
-    team_name = st.sidebar.text_input("Enter project name:", value="Pokemon")
-    team_name_branch_name = re.sub('[^a-zA-Z0-9_]+', '_', team_name)
+    handle_project_name(github_client)
 
     # Text input box
     text_input = st.text_area("Enter your text here", value=read_file("../prompts/example1.txt"))
@@ -57,14 +70,14 @@ def app():
         st.session_state.markdown_code = call_openapi(create_openapi_request(text_input), model)
         st.session_state.final_code = extract_code_block(st.session_state.markdown_code)
 
-    st.markdown(st.session_state.final_code, unsafe_allow_html=True)
+    st.markdown(st.session_state.markdown_code, unsafe_allow_html=True)
 
     if st.session_state.final_code and st.button("Send result to Slack"):
         send_slack_message(
             f"Input: {text_input}\n{st.session_state.final_code}"
         )
     if st.session_state.final_code and st.button("Create Pull Request"):
-        handle_pull_request(team_name_branch_name, team_name, text_input)
+        github_client.handle_pull_request(st.session_state.project_name, text_input)
 
 
 def main():
