@@ -45,7 +45,7 @@ def app():
     team_name_branch_name = re.sub('[^a-zA-Z0-9_]+', '_', team_name)
 
     # Text input box
-    text_input = read_file("../prompts/example1.txt")
+    st.text_area("Enter your text here", value=read_file("../prompts/example1.txt"))
 
     if 'final_code' not in st.session_state:
         st.session_state.final_code = ""
