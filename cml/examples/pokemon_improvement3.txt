@@ -1,1 +1,0 @@
-then add also section that lists game locations where given pokemon can appear specificaly in version Blue,  for that you need a key given by encounters table where you can check id of pokemon, id of location area and then connect a name of area using location areas and location names tables

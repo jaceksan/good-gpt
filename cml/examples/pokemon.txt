@@ -1,4 +1,0 @@
-Python program that incorporates the open source PokeAPI. The steps for this task are as follows:
-• Utilize the open source PokeAPI to retrieve information on various Pokemon.
-• The program should display the Pokemon’s abilities once the user enters the name.
-Program should be executable in Streamlit, accepting user input from textbox and found abilities to be displayed.
