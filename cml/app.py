@@ -16,7 +16,8 @@ def check_password(password):
     return password == PASSWORD
 
 # ask for password
-password = st.text_input("Enter password to access chatbot:", type="password")
+placeholder = st.empty()
+password = placeholder.text_input("Enter password to access chatbot:", type="password")
 
 # check password before allowing access to app
 if check_password(password):
