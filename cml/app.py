@@ -60,7 +60,7 @@ def read_examples() -> dict[str, dict]:
                     file_dict[filename] = parsed_content
         return file_dict
     except Exception as e:
-        raise Exception(f"{EXAMPLES_DIR=} does not exist, {str(e)}")
+        raise Exception(f"{EXAMPLES_DIR=} does not exist, {pathlib.Path(__name__)=}\n{str(e)=}")
 
 
 def wip_project():
