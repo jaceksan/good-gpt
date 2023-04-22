@@ -4,7 +4,7 @@ from slack_client import send_slack_message
 import os
 
 # define password
-PASSWORD = os.environ.get("SLACK_CHANNEL")
+PASSWORD = os.environ.get("PASSWORD")
 
 # set page config
 st.set_page_config(
