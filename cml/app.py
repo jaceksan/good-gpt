@@ -11,7 +11,6 @@ import pathlib
 # define password
 PASSWORD = os.environ.get("PASSWORD")
 EXAMPLES_DIR = pathlib.Path(__name__).parent.absolute() / "examples"
-print(EXAMPLES_DIR)
 
 
 # create function to check if password is correct
@@ -49,16 +48,19 @@ def handle_project_name(github_client):
 
 def read_examples() -> dict[str, dict]:
     file_dict = {}
-    for filename in os.listdir(EXAMPLES_DIR):
-        # Check if the file is a regular file (i.e. not a directory)
-        if os.path.isfile(os.path.join(EXAMPLES_DIR, filename)):
-            # Open the file and read its contents
-            with open(os.path.join(EXAMPLES_DIR, filename), "r") as file:
-                content = file.read()
-                # Store the YAML content in the dictionary indexed by the file name
-                parsed_content = yaml.safe_load(content)
-                file_dict[filename] = parsed_content
-    return file_dict
+    try:
+        for filename in os.listdir(EXAMPLES_DIR):
+            # Check if the file is a regular file (i.e. not a directory)
+            if os.path.isfile(os.path.join(EXAMPLES_DIR, filename)):
+                # Open the file and read its contents
+                with open(os.path.join(EXAMPLES_DIR, filename), "r") as file:
+                    content = file.read()
+                    # Store the YAML content in the dictionary indexed by the file name
+                    parsed_content = yaml.safe_load(content)
+                    file_dict[filename] = parsed_content
+        return file_dict
+    except Exception as e:
+        raise Exception(f"{EXAMPLES_DIR=} does not exist, {str(e)}")
 
 
 def wip_project():
