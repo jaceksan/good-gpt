@@ -55,6 +55,18 @@ def create_openapi_redo_request(content: str, code_context: str, pr_comment: str
 
 
 
+def create_openapi_PR_comment_request(content: str) -> list[dict]:
+    return [
+        {
+            "role": "system",
+            "content": "You are a Python developer. You are expert at code review."},
+        {
+            "role": "user",
+            "content": "Please review this code:" + content
+        },
+    ]
+
+
 def extract_code_block(markdown: str) -> str:
     """Extracts code blocks from a markdown string"""
     pattern = r"```[\w\s]*\n([\s\S]*?)\n```"

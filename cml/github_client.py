@@ -19,13 +19,14 @@ class PullRequest:
     login: str
     body: str
     comments: list = None
+    files : list = None
 
     @classmethod
     def from_pull(cls, pull):
         """
         :param pull: PullRequest
         """
-        return cls(pull.title, pull.number, pull.state, pull.head.ref, pull.user.login, pull.body, pull.get_comments())
+        return cls(pull.title, pull.number, pull.state, pull.head.ref, pull.user.login, pull.body, pull.get_comments(), pull.get_files())
 
 
 class GithubClient:

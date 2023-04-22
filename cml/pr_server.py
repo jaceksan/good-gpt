@@ -2,8 +2,18 @@ from asyncio import sleep
 from github_client import GithubClient, GPT_USER
 from gpt import create_openapi_request, call_openapi, extract_code_block, create_openapi_redo_request
 
+
 def branch_to_file_path(branch_name: str):
     return "apps/" + branch_name.removeprefix(f"{GPT_USER}/") + "/app.py"
+
+def add_comment(pr):
+     gitclient = GithubClient()
+
+     comment = call_openapi(
+          create_openapi_request(
+          
+          )
+     )
 
 def resolve_comment(pr):
     
@@ -43,10 +53,15 @@ def check_comments():
 
 
 def check_pull_requests():
-    return NotImplemented
+    gitclient = GithubClient()
+    unresolved_pr = gitclient.list_gpt_unresolved_pr()
+
+    for pr in unresolved_pr:
+            add_comment(pr)
 
 
 if __name__ == "__main__":
     while True:
-        check_comments()
-        sleep(60)
+        # check_comments()
+        check_pull_requests()
+        # sleep(60)
