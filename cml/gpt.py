@@ -34,6 +34,26 @@ def create_openapi_request(content: str) -> list[dict]:
         # {"role": "user", "content": "Where was it played?"}
     ]
 
+def create_openapi_redo_request(content: str, code_context: str, pr_comment: str) -> list[dict]:
+    return [
+        {
+            "role": "system",
+            "content": "You are a Python developer. Return only pure code, no explanation text. Return as markdown code block."},
+        {
+            "role": "user",
+            "content": content
+        },
+        {
+            "role": "assistant",
+            "content": code_context
+         },
+        {
+            "role": "user",
+            "content": pr_comment
+        }
+    ]
+
+
 
 def extract_code_block(markdown: str) -> str:
     """Extracts code blocks from a markdown string"""

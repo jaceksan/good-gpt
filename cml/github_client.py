@@ -1,6 +1,5 @@
 import os
 from dataclasses import dataclass
-
 from github import Github
 from dotenv import load_dotenv
 import streamlit as st
@@ -18,13 +17,15 @@ class PullRequest:
     state: str
     branch_name: str
     login: str
+    body: str
+    comments: list = None
 
     @classmethod
     def from_pull(cls, pull):
         """
         :param pull: PullRequest
         """
-        return cls(pull.title, pull.number, pull.state, pull.head.ref, pull.user.login)
+        return cls(pull.title, pull.number, pull.state, pull.head.ref, pull.user.login, pull.body, pull.get_comments())
 
 
 class GithubClient:
@@ -59,20 +60,21 @@ class GithubClient:
         branches = self.repo.get_branches()
         return [b.name for b in branches if b.name.startswith(f"{GPT_USER}/")]
 
+    def list_non_gpt_pr(self):
+        pulls = self.repo.get_pulls(state='open')
+        return [PullRequest.from_pull(p) for p in pulls if not p.head.ref.startswith(f"{GPT_USER}/")]
+    
+    def list_gpt_unresolved_pr(self):
+        pulls = self.repo.get_pulls(state='request_changes')
+        return [PullRequest.from_pull(p) for p in pulls if p.head.ref.startswith(f"{GPT_USER}/")]
+
     def create_pull_request(self, title: str, body: str, base_branch: str = 'main'):
         # Create a new pull request
         pull_request = self.repo.create_pull(title=title, body=body, head=self.branch_name, base=base_branch)
         return pull_request
-
+    
     def update_file_in_branch(self, file_path, updated_content, commit_message):
-        branch = self.repo.get_branch(self.branch_name)
-
-        # Get file contents and update it
-        file = self.repo.get_contents(file_path, ref=self.branch_name)
-        file_content = file.decoded_content.decode('utf-8')
-        # updated_content = file_content + '\nSome changes.'
-
-        # Create a new commit with updated file
+        file= self.repo.get_contents(file_path, ref=self.branch_name)
 
         self.repo.update_file(file_path, commit_message, updated_content, file.sha, branch=self.branch_name)
 
@@ -82,6 +84,23 @@ class GithubClient:
         # create a Github object using the provided access token
         # create a new file
         self.repo.create_file(file_name, commit_message, file_content, branch=self.branch_name)
+
+    def get_pr_code_context(self, pr_number):
+        pr = self.repo.get_pull(pr_number)
+        return pr.get_files()
+
+    def get_file_content(self, branch_name, file_path):
+
+        # Get the branch object
+        branch = self.repo.get_branch(branch_name)
+        
+        # Get the file's content from the branch
+        file_content = self.repo.get_contents(file_path, ref=branch.commit.sha)
+        
+        # Decode the file content
+        decoded_content = file_content.decoded_content.decode()
+        
+        return decoded_content
 
     def read_pull_request_comments(self, pr_number):
         pr = self.repo.get_pull(pr_number)
