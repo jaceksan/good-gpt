@@ -1,3 +1,7 @@
+import pandas as pd
+import altair as alt
+import streamlit as st
+
 # Download CSV file
 url = 'https://raw.githubusercontent.com/epogrebnyak/ssg-dataset/main/data/ssg.csv'
 df = pd.read_csv(url)
