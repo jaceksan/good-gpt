@@ -9,15 +9,21 @@ def get_pokemon_data(name):
     else:
         return None
 
-# streamlit app
-def app():
-    st.title("Pokemon Abilities")
-    name = st.text_input("Enter Pokemon Name:")
-    if name:
-        abilities = get_pokemon_data(name.lower())
-        if abilities:
-            st.write(f"{name.capitalize()} has the following abilities:")
-            for ability in abilities:
-                st.write(f"- {ability.capitalize()}")
-        else:
-            st.write(f"Pokemon '{name.capitalize()}' not found.")
+# command line arguments
+parser = argparse.ArgumentParser(description='Retrieve Pokemon abilities from PokeAPI.')
+parser.add_argument('name', type=str, help='Name of the Pokemon')
+
+# main function
+def main():
+    args = parser.parse_args()
+    name = args.name.lower()
+    abilities = get_pokemon_data(name)
+    if abilities:
+        print(f"{name.capitalize()} has the following abilities:")
+        for ability in abilities:
+            print(f"- {ability.capitalize()}")
+    else:
+        print(f"Pokemon '{name.capitalize()}' not found.")
+
+if __name__ == '__main__':
+    main()
