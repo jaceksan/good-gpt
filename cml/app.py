@@ -10,7 +10,7 @@ import pathlib
 
 # define password
 PASSWORD = os.environ.get("PASSWORD")
-EXAMPLES_DIR = pathlib.Path("../examples")
+EXAMPLES_DIR = pathlib.Path("examples")
 
 
 # create function to check if password is correct
