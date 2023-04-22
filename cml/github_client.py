@@ -20,13 +20,14 @@ class PullRequest:
     body: str
     comments: list = None
     files : list = None
+    diff_url : str = None
 
     @classmethod
     def from_pull(cls, pull):
         """
         :param pull: PullRequest
         """
-        return cls(pull.title, pull.number, pull.state, pull.head.ref, pull.user.login, pull.body, pull.get_comments(), pull.get_files())
+        return cls(pull.title, pull.number, pull.state, pull.head.ref, pull.user.login, pull.body, pull.get_comments(), pull.get_files(), pull.diff_url)
 
 
 class GithubClient:
@@ -41,6 +42,10 @@ class GithubClient:
         # Get repository
         self.repo = self.g.get_user(self.user).get_repo(self.repo_name)
         self.branch_name = None
+
+    def create_PR_comment(self, pr_number, content):
+        pr = self.repo.get_pull(pr_number)
+        pr.create_review(event="REQUEST_CHANGES",body=content)
 
     def set_branch(self, project_name):
         self.branch_name = f"{GPT_USER}/{project_name}"
@@ -63,7 +68,7 @@ class GithubClient:
 
     def list_non_gpt_pr(self):
         pulls = self.repo.get_pulls(state='open')
-        return [PullRequest.from_pull(p) for p in pulls if not p.head.ref.startswith(f"{GPT_USER}/")]
+        return [PullRequest.from_pull(p) for p in pulls if ((p.user.login != "GoodGPT" ) and p.comments == 0)]
     
     def list_gpt_unresolved_pr(self):
         pulls = self.repo.get_pulls(state='request_changes')
