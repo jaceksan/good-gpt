@@ -83,8 +83,7 @@ def create_file_in_branch(file_name:str, file_content:str, commit_message:str, b
     repo.create_file(file_name, commit_message, file_content, branch=branch_name)
 
 
-
-def read_pull_request_comments(pr_number):
+def get_pull_request(branch_name):
     # Authentication
     g = Github(os.environ['GITHUB_PERSONAL_ACCESS_TOKEN'])   # Set user and repository variables
     user = os.environ['GITHUB_REPO_OWNER']
@@ -92,14 +91,34 @@ def read_pull_request_comments(pr_number):
     
     # Get repository and pull request
     repo = g.get_user(user).get_repo(repo_name)
-    pr = repo.get_pull(pr_number)
-    
-    # Get all comments
-    comments = pr.get_review_comments()
-    comments_list = []
+    prs = repo.get_pulls()
     
     # Loop through comments and append to list
-    for comment in comments:
-        comments_list.append(comment)
+    for pr in prs:
+        if pr.head.ref == branch_name:
+            return pr
     
-    return comments_list
+    print("No pull request found for branch: " + branch_name)
+    return None
+
+def list_pull_request_comments(branch_name):
+    # Authentication
+    pr = get_pull_request(branch_name)
+
+    if pr:  
+        comment_list = []
+        for comment in pr.get_review_comments():
+            comment_list.append(comment.body)
+        return comment_list
+    else:
+        print("No pull request found for branch: " + branch_name)
+
+def get_pull_request_url(branch_name):
+    # Authentication
+    pr = get_pull_request(branch_name)
+
+    if pr:  
+        return pr.html_url
+    else:
+        print("No pull request found for branch: " + branch_name)
+        return None
