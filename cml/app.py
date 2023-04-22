@@ -29,6 +29,11 @@ def handle_pull_request(team_name_branch_name, team_name, text_input):
         base_branch='main'
     )
 
+# reading from file
+def read_file(filename):
+    with open(filename, 'r') as f:
+        file_contents = f.read()
+    return file_contents
 
 def app():
     st.title("Design Streamlit apps with ChatGPT")
@@ -40,14 +45,7 @@ def app():
     team_name_branch_name = re.sub('[^a-zA-Z0-9_]+', '_', team_name)
 
     # Text input box
-    text_input = st.text_area(
-        "Enter your text here:",
-        value="""Python program that incorporates the open source PokeAPI. The steps for this task are as follows:
-                • Utilize the open source PokeAPI to retrieve information on various Pokemon.
-                • The program should display the Pokemon’s abilities once the user enters the name.
-                Program should be executable in Streamlit, 
-                accepting user input from textbox and found abilities to be displayed."""
-    )
+    text_input = read_file("../prompts/example1.txt")
 
     if 'final_code' not in st.session_state:
         st.session_state.final_code = ""
