@@ -144,11 +144,10 @@ class GithubClient:
             file_content=st.session_state.final_code,
             commit_message=f"{project_name}-kickoff",
         )
-        requirements_content = """
-        streamlit
-        pandas
-        altair
-        """
+        requirements_content = """streamlit
+pandas
+altair
+"""
         self.create_file_in_branch(
             file_name=f"{APPS_FOLDER}/{project_name}/requirements.txt",
             file_content=requirements_content,
