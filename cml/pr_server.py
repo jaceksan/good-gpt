@@ -75,6 +75,6 @@ def check_pull_requests():
 
 if __name__ == "__main__":
     #while True:
-    # check_comments()
+    check_comments()
     check_pull_requests()
     #    sleep(1000)
