@@ -1,5 +1,4 @@
 import streamlit as st
-import streamlit.components.v1 as components
 from gpt import call_openapi, create_openapi_request, extract_code_block, supported_models
 from slack_client import send_slack_message
 from github_client import GithubClient, GPT_USER
@@ -65,11 +64,10 @@ def read_examples() -> dict[str, dict]:
 
 def wip_project():
     if st.session_state.project_name:
-        st.write(f"Project {st.session_state.project_name} is in the progress. See information below.")
+        st.write(f"Project {st.session_state.project_name} is in the progress there is opened [PR](https://github.com/jaceksan/good-gpt/pulls) on GitHub.")
     else:
-        # TODO: there are no projects
-        #   add tutorial?
-        pass
+        # there are no projects
+        st.write("There are no projects. Create one.")
 
 
 def new_project(github_client, model, example):
@@ -96,16 +94,17 @@ def new_project(github_client, model, example):
 
 
 def existing_project(github_client):
-    components.html("""
-    <html>
-    <head>
-    <title>Yearly Symbol Prices</title>
-    </head>
-    <frameset>
-    <frame src='https://good-gpt.streamlit.app/?embedded=true'>
-    </frameset>
-    </html>    
-    """, height=600, scrolling=True)
+    # components.html(f"""
+    # <html>
+    # <head>
+    # <title>Yearly Symbol Prices</title>
+    # </head>
+    # <frameset>
+    # <frame src='https://good-gpt-{github_client.branch_name.lower()}.streamlit.app/?embedded=true'>
+    # </frameset>
+    # </html>
+    # """, height=600, scrolling=True)
+    st.write("There should be iframe with your application in the future :)")
 
 
 def project_based_behaviour(github_client, model, example):
@@ -117,7 +116,6 @@ def project_based_behaviour(github_client, model, example):
         case (False, True):
             wip_project()
         case (True, _):
-            # TODO: show preview of selected project
             existing_project(github_client)
 
 
