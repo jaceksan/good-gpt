@@ -4,6 +4,7 @@ from slack_client import send_slack_message
 from github_client import GithubClient, GPT_USER
 import os 
 import re
+import yaml
 
 # define password
 PASSWORD = os.environ.get("PASSWORD")
@@ -42,7 +43,7 @@ def handle_project_name(github_client):
     github_client.set_branch(project_branch_name)
 
 
-def read_examples() -> dict[str, str]:
+def read_examples() -> dict[str, dict]:
     file_dict = {}
     for filename in os.listdir(EXAMPLES_DIR):
         # Check if the file is a regular file (i.e. not a directory)
@@ -50,8 +51,9 @@ def read_examples() -> dict[str, str]:
             # Open the file and read its contents
             with open(os.path.join(EXAMPLES_DIR, filename), "r") as file:
                 content = file.read()
-                # Store the content in the dictionary indexed by the file name
-                file_dict[filename] = content
+                # Store the YAML content in the dictionary indexed by the file name
+                parsed_content = yaml.safe_load(content)
+                file_dict[filename] = parsed_content
     return file_dict
 
 
@@ -67,7 +69,7 @@ def app():
     examples = read_examples()
     example = st.sidebar.selectbox("Examples", options=examples.keys())
     # Text input box
-    text_input = st.text_area("Enter your text here", value=examples[example])
+    text_input = st.text_area("Enter your text here", value=examples[example]["design"])
 
     if 'final_code' not in st.session_state:
         st.session_state.final_code = ""

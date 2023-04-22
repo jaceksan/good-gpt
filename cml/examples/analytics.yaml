@@ -1,0 +1,8 @@
+design: |
+    Create Streamlit app, which:
+    - Downloads CSV file from https://raw.githubusercontent.com/epogrebnyak/ssg-dataset/main/data/ssg.csv
+    - Reads file to data frame
+    - Calculate sum of stars by created (year) and display it as line chart
+
+improvements:
+    - The number of year is displayed with commas. Please, format it without commas.

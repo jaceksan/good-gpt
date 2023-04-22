@@ -3,3 +3,4 @@ requests==2.28.2
 streamlit==1.21.0
 python-dotenv==1.0.0
 pygithub
+PyYAML==6.0
