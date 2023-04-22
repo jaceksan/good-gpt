@@ -11,6 +11,7 @@ import pathlib
 # define password
 PASSWORD = os.environ.get("PASSWORD")
 EXAMPLES_DIR = pathlib.Path(__name__).parent.absolute() / "examples"
+print(EXAMPLES_DIR)
 
 
 # create function to check if password is correct
