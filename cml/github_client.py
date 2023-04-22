@@ -8,6 +8,7 @@ import streamlit as st
 load_dotenv()
 
 GPT_USER = "GoodGPT"
+APPS_FOLDER = "apps"
 
 
 @dataclass
@@ -105,9 +106,19 @@ class GithubClient:
     def list_gpt_pull_requests(self) -> list[PullRequest]:
         return [p for p in self.list_pull_requests() if p.login == GPT_USER]
 
+    def list_existing_apps(self) -> list:
+        """
+        :return: List of ContentFile.
+        """
+        try:
+            contents = self.repo.get_contents(APPS_FOLDER)
+            return [c for c in contents if c.type == "dir"]
+        except Exception:  # noqa
+            return []
+
     def handle_pull_request(self, project_name, text_input):
         self.create_file_in_branch(
-            file_name=f"apps/{project_name}/app.py",
+            file_name=f"{APPS_FOLDER}/{project_name}/app.py",
             file_content=st.session_state.final_code,
             commit_message=f"{project_name}-kickoff",
         )
