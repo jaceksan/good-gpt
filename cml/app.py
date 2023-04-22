@@ -3,66 +3,94 @@ from gpt import call_openapi, create_openapi_request, extract_code_block, suppor
 from slack_client import send_slack_message
 from github_client import create_branch, create_pull_request, update_file_in_branch, create_file_in_branch
 import os 
+import re
 
 # define password
 PASSWORD = os.environ.get("PASSWORD")
 
-# set page config
-st.set_page_config(
-    layout="wide", page_icon="favicon.ico", page_title="Streamlit-GPT demo"
-)
 
 # create function to check if password is correct
 def check_password(password):
     return password == PASSWORD
 
-# ask for password
-placeholder = st.empty()
-password = placeholder.text_input("Enter password to access chatbot:", type="password")
 
-# check password before allowing access to app
-match check_password(password), password:
-    case True, _:
-        placeholder.empty()
+def handle_pull_request(team_name_branch_name, team_name, text_input):
+    create_branch(team_name_branch_name)
+    create_file_in_branch(
+        file_name=f"apps/{team_name}/app.py",
+        file_content=st.session_state.final_code,
+        commit_message=f"{team_name}-kickoff",
+        branch_name=team_name_branch_name
+    )
+    create_pull_request(
+        title=f"{team_name} kickoff",
+        body=f"{team_name} kickoff:\nSpecification:\n{text_input}",
+        head_branch=team_name_branch_name,
+        base_branch='main'
+    )
 
-        st.title("Chat with AI")
 
-        supported_models = supported_models()
-        model = st.selectbox(label="Models", options=supported_models, index=supported_models.index("gpt-3.5-turbo"))
+def app():
+    st.title("Design Streamlit apps with ChatGPT")
 
-        team_name = st.text_input("Enter team name:", value="Team 1")
+    models = supported_models()
+    model = st.sidebar.selectbox(label="OpenAI models", options=models, index=models.index("gpt-3.5-turbo"))
 
-        # Text input box
-        text_input = st.text_area(
-            "Enter your text here:", 
-            value="""Create a Streamlit app:
-            1. Input box (area) for larger texts
-            2. Call ChatGPT, send the text from the input box.
-            3. Display the result from the ChatGPT"""
+    team_name = st.sidebar.text_input("Enter project name:", value="Pokemon")
+    team_name_branch_name = re.sub('[^a-zA-Z0-9_]+', '_', team_name)
+
+    # Text input box
+    text_input = st.text_area(
+        "Enter your text here:",
+        value="""Python program that incorporates the open source PokeAPI. The steps for this task are as follows:
+                • Utilize the open source PokeAPI to retrieve information on various Pokemon.
+                • The program should display the Pokemon’s abilities once the user enters the name.
+                Program should be executable in Streamlit, 
+                accepting user input from textbox and found abilities to be displayed."""
+    )
+
+    if 'final_code' not in st.session_state:
+        st.session_state.final_code = ""
+    if 'markdown_code' not in st.session_state:
+        st.session_state.markdown_code = ""
+
+    # Button to send text to OpenAI
+    if st.button("Generate code"):
+        st.session_state.markdown_code = call_openapi(create_openapi_request(text_input), model)
+        st.session_state.final_code = extract_code_block(st.session_state.markdown_code)
+
+    st.markdown(st.session_state.final_code, unsafe_allow_html=True)
+
+    if st.session_state.final_code and st.button("Send result to Slack"):
+        send_slack_message(
+            f"Input: {text_input}\n{st.session_state.final_code}"
         )
+    if st.session_state.final_code and st.button("Create Pull Request"):
+        handle_pull_request(team_name_branch_name, team_name, text_input)
 
-        if 'final_code' not in st.session_state:
-            st.session_state.final_code = ""
 
-        # Button to send text to OpenAI
-        if st.button("Generate code"):
-            print(f"{text_input=}")
-            markdown_response = call_openapi(create_openapi_request(text_input), model)
-            final_code = extract_code_block(markdown_response)
-            st.session_state.final_code = markdown_response
+def main():
+    # set page config
+    st.set_page_config(
+        layout="wide", page_icon="favicon.ico", page_title="Streamlit-GPT demo"
+    )
 
-        st.markdown(st.session_state.final_code, unsafe_allow_html=True)
+    # ask for password
+    placeholder = st.empty()
+    password = placeholder.text_input("Enter password to access chatbot:", type="password")
 
-        if st.session_state.final_code and st.button("Send result to Slack"):
-            send_slack_message(
-                f"Input: {text_input}\n{st.session_state.final_code}"
-            )
-        if st.session_state.final_code and st.button("Create Pull Request"):
-            create_branch(team_name)
-            create_file_in_branch(file_name=f"{team_name}/app.py",file_content=st.session_state.final_code,commit_message=f"{team_name}-kickoff", branch_name=team_name)
-            create_pull_request(f"{team_name} kickoff", f"{team_name} kickoff:\nSpecification:\n{text_input}", team_name, 'main')
-    
-    case False, "":
-        pass
-    case False, _:
-        st.write("Incorrect password.")
+    # check password before allowing access to app
+    match check_password(password), password:
+        case True, _:
+            placeholder.empty()
+            app()
+
+        case False, "":
+            pass
+        case False, _:
+            st.write("Incorrect password.")
+
+
+# run the program
+if __name__ == "__main__":
+    main()
