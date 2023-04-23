@@ -19,7 +19,7 @@ def add_comment(pr):
         else:
             content = content + " \n " + a.filename+ ": \n " + gitclient.get_file_content(pr.branch_name, a.filename) + " \n "
         
-    content = content + " \n There were these changes:" + parse_diff_url(pr.diff_url) + "\n \n Please provide code review for it. And start with: ChatGPT-AUTO-REVIEW:"
+    content = content + " \n There were these changes:" + parse_diff_url(pr.diff_url) + "\n \n Please provide code review for it. And start with: ChatGPT-AUTO-REVIEW: ßßß"
 
     text = call_openapi(
         create_openapi_PR_comment_request(content)
