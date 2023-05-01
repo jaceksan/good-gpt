@@ -10,7 +10,7 @@ class PrUpdateAgent:
     """Summary: Agent, that updates the the GoodGPT created Pull Request based on reviews
     """
     gitClient : GithubClient = GithubClient()
-    system_message = "You are a Python export at working with Streamlit. You create small-scale Streamlit applications. You never write anything else than code."
+    system_message = "You are a Python expert at working with Streamlit. You create small-scale Streamlit applications. You never write anything else than code."
     model_engine="gpt-4-0314"
 
     def __init__(self, model_engine: str = "gpt-4-0314") -> None:
