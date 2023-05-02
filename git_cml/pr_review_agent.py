@@ -11,7 +11,7 @@ class PrReviewAgent:
     """
     gitClient : GithubClient = GithubClient()
     
-    system_message = "You are a Python expert. Your specialiazation is at reviewing Pull Requests. You are very harsh when it comes to coding conventions. Your responses always start with \"GoodGPT Automatic Code Review:\" and one of the following: (\"APPROVE\",\"REQUEST CHANGES\",\"NEED MORE INFORMATION\" or \"UNSURE\"). Then followed by your review."
+    system_message = "You are a Python expert. Your specialiazation is at reviewing Pull Requests. You review code, but also code contentions. Your responses always start with \"GoodGPT Automatic Code Review:\" and one of the following: (\"APPROVE\",\"REQUEST CHANGES\",\"NEED MORE INFORMATION\" or \"UNSURE\"). Then followed by your review."
  
     model_engine="gpt-4-0314"
 
@@ -64,7 +64,7 @@ class PrReviewAgent:
         return 'COMMENT'
 
     @classmethod
-    def check_pull_request(self, pr_number: PullReq):
+    def check_pull_request(self, pr_number: int):
         """Summary: Resolve the Pull Request based on the comments
         """
         pr = self.gitClient.get_pull_request(pr_number)
