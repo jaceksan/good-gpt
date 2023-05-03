@@ -1,4 +1,5 @@
 import os
+import re
 from dataclasses import dataclass
 from github import Github
 from dotenv import load_dotenv
@@ -31,11 +32,10 @@ class PullRequest:
 class GithubClient:
     def __init__(self):
         # Authentication
-        self.g = Github(os.environ['GITHUB_PERSONAL_ACCESS_TOKEN'])
+        self.g = Github(os.environ['GIT_PERSONAL_ACCESS_TOKEN'])
 
         # Set user, repo, branch and file path
-        self.user = os.environ['GITHUB_REPO_OWNER']
-        self.repo_name = os.environ['GITHUB_REPO_NAME']
+        self.user, self.repo_name = re.compile(r'(.*)/(.*)').match(os.environ['GITHUB_REPOSITORY']).groups()
         self.base_branch_default = 'main'
         # Get repository
         self.repo = self.g.get_user(self.user).get_repo(self.repo_name)
